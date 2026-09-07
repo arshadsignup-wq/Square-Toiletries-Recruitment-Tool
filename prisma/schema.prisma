@@ -4,6 +4,9 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
+  // "native" covers local development; Vercel's functions run on
+  // rhel-openssl-3.0.x and need their own query engine.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

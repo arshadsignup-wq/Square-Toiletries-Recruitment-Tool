@@ -1,0 +1,10 @@
+# Generated on the build machine for the correct platform — uploading the
+# local copy ships a macOS query engine to a Linux runtime.
+/src/generated
+/prisma/data-export.json
+/prisma/*.db
+.env
+.env.*
+!.env.example
+/.agents
+/.claude
