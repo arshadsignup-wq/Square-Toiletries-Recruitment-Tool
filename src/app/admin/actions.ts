@@ -50,6 +50,15 @@ export async function saveNotes(applicationId: string, notes: string) {
   revalidatePath(`/admin/applications/${applicationId}`);
 }
 
+/** Removes an application and everything hanging off it (documents, proposals).
+ *  Used to clear test records; there is no undo. */
+export async function deleteApplication(applicationId: string) {
+  await requireAuth();
+  await prisma.application.delete({ where: { id: applicationId } });
+  revalidatePath("/admin");
+  redirect("/admin");
+}
+
 export async function createPosition(formData: FormData) {
   await requireAuth();
   const title = String(formData.get("title") ?? "").trim();

@@ -60,7 +60,7 @@ Every issued proposal is stored with a reference number
 
 ```bash
 npm install
-npx prisma migrate dev     # creates prisma/dev.db
+npx prisma generate
 npm run dev                # http://localhost:3000
 ```
 
@@ -73,7 +73,7 @@ openssl rand -hex 32        # paste the result as SESSION_SECRET
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | `file:./dev.db` locally; a Postgres URL when deployed |
+| `DATABASE_URL` | Neon pooled connection string (plus `DATABASE_URL_UNPOOLED` for migrations) |
 | `ADMIN_PASSWORD` | Password for the HR dashboard at `/admin` |
 | `SESSION_SECRET` | Signs the admin session cookie; changing it signs everyone out |
 
@@ -92,30 +92,45 @@ Useful commands:
 
 ---
 
-## Deploying so candidates can reach it
+## Deployment
 
-The app runs on SQLite locally. Vercel's filesystem is read-only, so hosting
-needs a real Postgres database:
+Live at **https://square-toiletries-rt.vercel.app** on Vercel, backed by Neon
+Postgres (provisioned through the Vercel Marketplace, so its connection
+variables are injected into the project automatically).
 
-1. Provision Postgres (Neon via the Vercel Marketplace is the shortest path) and
-   put its connection string in `DATABASE_URL`.
-2. In `prisma/schema.prisma`, change the datasource provider:
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   ```
-3. Delete `prisma/migrations/` and run `npx prisma migrate dev --name init`
-   against the new database.
-4. Set `ADMIN_PASSWORD` and `SESSION_SECRET` as environment variables in Vercel.
-5. Deploy.
+Local development talks to the **same** Neon database, so what you see on your
+machine is what candidates and HR see live. There is no separate local dataset
+to keep in sync.
 
-No application code changes are needed — the schema deliberately avoids
-SQLite-only types. List columns (`benefits`, `accommodationType`, …) are stored
-as JSON strings so they behave identically on both databases.
+Three variables must be set in the Vercel project (Production and Preview):
 
----
+| Variable | Source |
+| --- | --- |
+| `DATABASE_URL` / `DATABASE_URL_UNPOOLED` | Injected by the Neon integration — do not set by hand |
+| `ADMIN_PASSWORD` | Set manually; guards the HR dashboard |
+| `SESSION_SECRET` | Set manually; `openssl rand -hex 32` |
+
+`ADMIN_PASSWORD` and `SESSION_SECRET` are stored as **Secret** type, which means
+they cannot be read back out — not from the dashboard and not via
+`vercel env pull`. Record the password somewhere safe when you set it; if it is
+lost the only remedy is to overwrite it:
+
+```bash
+vercel env rm ADMIN_PASSWORD production --yes
+echo -n "new-password" | vercel env add ADMIN_PASSWORD production
+vercel --prod          # redeploy to pick it up
+```
+
+Prisma uses `directUrl` for migrations because Neon's pooled connection runs
+through pgbouncer, which cannot execute DDL.
+
+### Moving data between databases
+
+`scripts/export-data.ts` snapshots every application and its nested rows to
+`prisma/data-export.json`; `scripts/import-data.ts` replays that snapshot into
+whatever `DATABASE_URL` currently points at, skipping applications whose
+reference number is already present. The snapshot contains NIDs, addresses and
+photographs, so it is git-ignored and should be deleted once used.
 
 ## Data model
 
@@ -172,9 +187,6 @@ feedback.
 
 ## Test data
 
-Four sample applications and one issued proposal are in `prisma/dev.db` so you
-can click around immediately. To clear them and start clean:
-
-```bash
-rm prisma/dev.db && npx prisma migrate dev
-```
+Six sample applications carried over from development are in the live database.
+Delete them from the dashboard: open a candidate and use **Danger Zone → Delete
+application**, which also removes their proposals and documents.

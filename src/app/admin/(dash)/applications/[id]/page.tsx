@@ -12,6 +12,7 @@ import {
   monthSpan,
   parseList,
 } from "@/lib/utils";
+import DangerZone from "./DangerZone";
 import NotesEditor from "./NotesEditor";
 import ProposalPanel from "./ProposalPanel";
 import StatusControl from "./StatusControl";
@@ -399,6 +400,14 @@ export default async function ApplicationDetail({
       <Card className="p-5">
         <SectionHeading title="HR Notes" hint="Visible only to the HR team." />
         <NotesEditor applicationId={a.id} initialNotes={a.hrNotes ?? ""} />
+      </Card>
+
+      <Card className="p-5">
+        <SectionHeading
+          title="Danger Zone"
+          hint="Deleting removes the candidate's personal data permanently."
+        />
+        <DangerZone applicationId={a.id} candidateName={a.fullName} />
       </Card>
     </div>
   );

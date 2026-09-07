@@ -1,25 +1,27 @@
 -- CreateTable
 CREATE TABLE "Position" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "department" TEXT,
     "isOpen" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Application" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationNo" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'SUBMITTED',
-    "submittedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "hrNotes" TEXT,
     "positionAppliedFor" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "mobileNumber" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "dob" DATETIME NOT NULL,
+    "dob" TIMESTAMP(3) NOT NULL,
     "homeTown" TEXT NOT NULL,
     "nationality" TEXT NOT NULL,
     "religion" TEXT NOT NULL,
@@ -53,8 +55,8 @@ CREATE TABLE "Application" (
     "drivingLicenseNumber" TEXT,
     "passportNo" TEXT,
     "passportIssuePlace" TEXT,
-    "passportIssueDate" DATETIME,
-    "passportExpireDate" DATETIME,
+    "passportIssueDate" TIMESTAMP(3),
+    "passportExpireDate" TIMESTAMP(3),
     "hobby" TEXT,
     "emergencyContactName" TEXT NOT NULL,
     "emergencyContactTitle" TEXT NOT NULL,
@@ -92,34 +94,38 @@ CREATE TABLE "Application" (
     "source" TEXT NOT NULL,
     "sourceManual" TEXT,
     "photoData" TEXT,
-    "declaration" BOOLEAN NOT NULL DEFAULT false
+    "declaration" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "Application_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Dependent" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "age" INTEGER,
     "relationship" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "Dependent_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Dependent_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Sibling" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "age" INTEGER,
     "occupation" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "Sibling_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Sibling_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "HigherEducation" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "degreeType" TEXT,
     "degreeTypeManual" TEXT,
@@ -130,12 +136,13 @@ CREATE TABLE "HigherEducation" (
     "result" TEXT,
     "passingYear" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "HigherEducation_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "HigherEducation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Experience" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "orgName" TEXT,
     "designation" TEXT,
@@ -150,23 +157,25 @@ CREATE TABLE "Experience" (
     "salaryEnd" INTEGER,
     "reasonForLeaving" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "Experience_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Experience_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Promotion" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "experienceId" TEXT NOT NULL,
     "designation" TEXT,
     "fromDate" TEXT,
     "toDate" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "Promotion_experienceId_fkey" FOREIGN KEY ("experienceId") REFERENCES "Experience" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Promotion_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "SquareRelation" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "designation" TEXT,
@@ -175,12 +184,13 @@ CREATE TABLE "SquareRelation" (
     "relationship" TEXT,
     "mobile" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "SquareRelation_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "SquareRelation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Proposal" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "applicationId" TEXT NOT NULL,
     "referenceNo" TEXT NOT NULL,
     "candidateName" TEXT NOT NULL,
@@ -190,9 +200,10 @@ CREATE TABLE "Proposal" (
     "nidNumber" TEXT NOT NULL,
     "address" TEXT NOT NULL,
     "salary" INTEGER NOT NULL,
-    "joiningDate" DATETIME NOT NULL,
-    "issuedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Proposal_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "joiningDate" TIMESTAMP(3) NOT NULL,
+    "issuedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Proposal_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -233,3 +244,24 @@ CREATE UNIQUE INDEX "Proposal_referenceNo_key" ON "Proposal"("referenceNo");
 
 -- CreateIndex
 CREATE INDEX "Proposal_applicationId_idx" ON "Proposal"("applicationId");
+
+-- AddForeignKey
+ALTER TABLE "Dependent" ADD CONSTRAINT "Dependent_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Sibling" ADD CONSTRAINT "Sibling_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HigherEducation" ADD CONSTRAINT "HigherEducation_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Experience" ADD CONSTRAINT "Experience_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Promotion" ADD CONSTRAINT "Promotion_experienceId_fkey" FOREIGN KEY ("experienceId") REFERENCES "Experience"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SquareRelation" ADD CONSTRAINT "SquareRelation_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Proposal" ADD CONSTRAINT "Proposal_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application"("id") ON DELETE CASCADE ON UPDATE CASCADE;

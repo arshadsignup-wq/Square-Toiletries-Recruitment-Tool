@@ -41,7 +41,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local database & generated Prisma client
+# local database, data snapshots (contain candidate PII) & generated client
 /prisma/*.db
 /prisma/*.db-journal
+/prisma/data-export.json
 /src/generated
+
+# agent tooling auto-installed by `vercel integration add`
+/.agents/
+/.claude/skills/
+/skills-lock.json

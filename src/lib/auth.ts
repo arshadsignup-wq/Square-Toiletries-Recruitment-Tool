@@ -37,9 +37,12 @@ export function verifySessionToken(token: string | undefined): boolean {
 }
 
 export function checkPassword(candidate: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD ?? "";
+  // Surrounding whitespace is stripped from both sides: the password is shared
+  // by hand and gets pasted from chat, email and .env, which routinely carries
+  // a trailing space or newline along with it.
+  const expected = (process.env.ADMIN_PASSWORD ?? "").trim();
   if (!expected) return false;
-  const a = Buffer.from(candidate);
+  const a = Buffer.from(candidate.trim());
   const b = Buffer.from(expected);
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
