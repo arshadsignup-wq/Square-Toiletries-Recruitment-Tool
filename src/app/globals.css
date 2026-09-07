@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eef5fc;
+  --color-brand-100: #d6e6f7;
+  --color-brand-200: #aecdef;
+  --color-brand-300: #7db0e5;
+  --color-brand-400: #3d84cf;
+  --color-brand-500: #0f62b0;
+  --color-brand-600: #0057a8;
+  --color-brand-700: #004a8f;
+  --color-brand-800: #003b73;
+  --color-brand-900: #002d59;
+
+  --color-ink-500: #64748b;
+  --color-ink-700: #334155;
+  --color-ink-900: #0f172a;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: #f1f5f9;
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+}
+
+/* Native controls styled once, so ~100 form fields stay consistent. */
+.field-control {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.875rem;
+  line-height: 1.35rem;
+  color: var(--color-ink-900);
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.field-control:focus {
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgba(15, 98, 176, 0.15);
+}
+
+.field-control::placeholder {
+  color: #94a3b8;
+}
+
+.field-control[aria-invalid="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.field-control:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+select.field-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath d='M5.5 7.5 10 12l4.5-4.5' stroke='%2364748b' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.15rem;
+  padding-right: 2rem;
+}
+
+textarea.field-control {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #ffffff;
+  }
+}

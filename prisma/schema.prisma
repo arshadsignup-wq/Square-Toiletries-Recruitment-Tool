@@ -1,0 +1,252 @@
+// Square Toiletries — Recruitment Portal
+// Schema mirrors every field of the existing candidate application form.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// A job opening. HR creates these so they can hand out per-position apply links
+/// and filter applications by position.
+model Position {
+  id         String   @id @default(cuid())
+  title      String   @unique
+  department String?
+  isOpen     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Application {
+  id            String   @id @default(cuid())
+  applicationNo String   @unique
+  status        String   @default("SUBMITTED") // SUBMITTED | SHORTLISTED | INTERVIEWED | SELECTED | REJECTED
+  submittedAt   DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  hrNotes       String?
+
+  // ---------- Step 1: Basic Information ----------
+  positionAppliedFor  String
+  fullName            String
+  mobileNumber        String
+  email               String
+  dob                 DateTime
+  homeTown            String
+  nationality         String
+  religion            String
+  religionManual      String?
+  gender              String
+  bloodGroup          String
+  maritalStatus       String
+  spouseName          String?
+  spouseOccupation    String?
+  spouseMobile        String?
+  maleChildrenCount   Int?
+  femaleChildrenCount Int?
+
+  // ---------- Parental Details ----------
+  fatherName       String
+  fatherOccupation String?
+  fatherTelNo      String?
+  motherName       String
+  motherOccupation String?
+  motherTelNo      String?
+
+  // ---------- Address Details ----------
+  presentVillage    String
+  presentPO         String
+  presentPS         String
+  presentDistrict   String
+  sameAsPresent     Boolean @default(false)
+  permanentVillage  String
+  permanentPO       String
+  permanentPS       String
+  permanentDistrict String
+
+  // ---------- Housing Status (JSON string arrays) ----------
+  accommodationType String? // ["Own home","Rent Flat",...]
+  livingWith        String? // ["Spouse","Parents",...]
+
+  // ---------- Other Information ----------
+  nidNumber            String?
+  drivingLicenseNumber String?
+  passportNo           String?
+  passportIssuePlace   String?
+  passportIssueDate    DateTime?
+  passportExpireDate   DateTime?
+  hobby                String?
+
+  // ---------- Emergency Contact ----------
+  emergencyContactName  String
+  emergencyContactTitle String
+  emergencyContactTelNo String
+
+  // ---------- Step 2: Education — SSC / Dakhil / O Level ----------
+  sscType        String
+  sscTypeManual  String?
+  sscGroup       String
+  sscGroupManual String?
+  sscInstitution String
+  sscBoard       String
+  sscBoardManual String?
+  sscResult      String
+  sscYear        String
+
+  // ---------- HSC / Alim / A Level / Diploma ----------
+  hscType        String?
+  hscTypeManual  String?
+  hscGroup       String?
+  hscGroupManual String?
+  hscInstitution String?
+  hscBoard       String?
+  hscBoardManual String?
+  hscResult      String?
+  hscYear        String?
+
+  // ---------- Step 3: Work Experience ----------
+  experienceStatus String // "Fresher" | "Experienced"
+  totalDuration    String?
+
+  // ---------- Step 4: Compensation ----------
+  currentSalary  Int?
+  expectedSalary Int
+  benefits       String? // JSON array of selected standard benefits
+  bonusCount     String?
+  otherBenefits  String? // JSON array of free-text benefits
+  noticePeriod   String
+
+  // ---------- Step 5: Disclosure ----------
+  medicalHistory    String?
+  hasDisability     Boolean @default(false)
+  disabilityDetails String?
+  relationInSquare  String? // "Yes" | "No"
+  source            String
+  sourceManual      String?
+  photoData         String? // data: URL of the passport-size photo
+  declaration       Boolean @default(false)
+
+  dependents       Dependent[]
+  siblings         Sibling[]
+  higherEducations HigherEducation[]
+  experiences      Experience[]
+  squareRelations  SquareRelation[]
+  proposals        Proposal[]
+
+  @@index([positionAppliedFor])
+  @@index([submittedAt])
+  @@index([status])
+}
+
+model Dependent {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  name          String
+  age           Int?
+  relationship  String?
+  sortOrder     Int         @default(0)
+
+  @@index([applicationId])
+}
+
+model Sibling {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  name          String
+  age           Int?
+  occupation    String?
+  sortOrder     Int         @default(0)
+
+  @@index([applicationId])
+}
+
+model HigherEducation {
+  id                  String      @id @default(cuid())
+  application         Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId       String
+  degreeType          String?
+  degreeTypeManual    String?
+  major               String?
+  institution         String?
+  isAffiliated        Boolean     @default(false)
+  affiliatedUniversity String?
+  result              String?
+  passingYear         String?
+  sortOrder           Int         @default(0)
+
+  @@index([applicationId])
+}
+
+model Experience {
+  id               String      @id @default(cuid())
+  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId    String
+  orgName          String?
+  designation      String?
+  fromDate         String? // YYYY-MM
+  toDate           String? // YYYY-MM
+  currentlyWorking Boolean     @default(false)
+  duration         String?
+  superiorName     String?
+  superiorTitle    String?
+  superiorTelNo    String?
+  salaryStart      Int?
+  salaryEnd        Int?
+  reasonForLeaving String?
+  sortOrder        Int         @default(0)
+  promotions       Promotion[]
+
+  @@index([applicationId])
+}
+
+model Promotion {
+  id           String     @id @default(cuid())
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  experienceId String
+  designation  String?
+  fromDate     String?
+  toDate       String?
+  sortOrder    Int        @default(0)
+
+  @@index([experienceId])
+}
+
+model SquareRelation {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  name          String
+  designation   String?
+  department    String?
+  company       String?
+  relationship  String?
+  mobile        String?
+  sortOrder     Int         @default(0)
+
+  @@index([applicationId])
+}
+
+/// A generated appointment proposal. Kept so HR can re-download the exact
+/// document that was issued, and see what terms were offered.
+model Proposal {
+  id            String      @id @default(cuid())
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  applicationId String
+  referenceNo   String      @unique
+  candidateName String
+  designation   String
+  department    String?
+  age           Int
+  nidNumber     String
+  address       String
+  salary        Int
+  joiningDate   DateTime
+  issuedAt      DateTime    @default(now())
+
+  @@index([applicationId])
+}
